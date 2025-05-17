@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan Your Trip</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js" defer></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        /* .container {
+            max-width: 800px;
+        } */
+        
+        .header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 20px 0;
+            border-radius: 0 0 15px 15px;
+            margin-bottom: 30px;
+        }
+        
+        .step-container {
+            display: none;
+            margin-top: 20px;
+            animation: fadeIn 0.5s;
+        }
+        
+        #welcome-container {
+            display: block;
+        }
+        
+        .card {
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            border: none;
+            padding: 10px 20px;
+            font-weight: 600;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a0fcb 0%, #1565fc 100%);
+        }
+        
+        .option-card {
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid #e9ecef;
+        }
+        
+        .option-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            border-color: #6a11cb;
+        }
+        
+        .option-card.selected {
+            border-color: #6a11cb;
+            background-color: #f0e6ff;
+        }
+        
+        .activity-option {
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+            border: 1px solid #e9ecef;
+        }
+        
+        .activity-option:hover {
+            background-color: #f0e6ff;
+        }
+        
+        .activity-option.selected {
+            background-color: #6a11cb;
+            color: white;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        #trip-result {
+            background-color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .date-inputs {
+            display: flex;
+            gap: 15px;
+        }
+        
+        @media (max-width: 576px) {
+            .date-inputs {
+                flex-direction: column;
+            }
+        }
+
+        .step-container:not(#welcome-container) {
+                display: none;
+            }
+    </style>
+</head>
+<body>
+    <div class="header text-center">
+        <h1>My Trip</h1>
+        <p class="lead">Plan your perfect getaway with AI assistance</p>
+    </div>
+
+    <div class="container" style=" max-width: 800px;">
+        <!-- Welcome Screen -->
+        <div id="welcome-container" class="step-container">
+            <div class="card text-center">
+                <h2>Welcome to My Trip Planner</h2>
+                <p class="lead">Let's create your personalized travel itinerary with AI</p>
+                <img src="https://img.freepik.com/free-vector/gradient-world-tourism-day-illustration_52683-129641.jpg?semt=ais_hybrid" alt="Travel illustration" class="img-fluid rounded mb-4">
+                <button id="plan-trip-btn" class="btn btn-primary btn-lg">Plan Trip with AI</button>
+            </div>
+        </div>
+
+        <!-- Step 1: Choose Destination -->
+        <div id="destination-container" class="step-container">
+            <div class="card">
+                <h2 class="mb-4">Where do you want to go?</h2>
+                <div class="input-group mb-3">
+                    <input type="text" id="destination-input" class="form-control form-control-lg" placeholder="Search for a destination...">
+                    <button class="btn btn-primary" type="button" id="destination-search-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <div id="destination-results" class="row g-3 mt-2">
+                    <!-- Destination options will appear here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Choose Dates -->
+        <div id="dates-container" class="step-container">
+            <div class="card">
+                <h2 class="mb-4">When do you want to go?</h2>
+                <div class="date-inputs mb-4">
+                    <div class="flex-grow-1">
+                        <label for="start-date" class="form-label">Start Date</label>
+                        <input type="date" id="start-date" class="form-control form-control-lg">
+                    </div>
+                    <div class="flex-grow-1">
+                        <label for="end-date" class="form-label">End Date</label>
+                        <input type="date" id="end-date" class="form-control form-control-lg">
+                    </div>
+                </div>
+                <button id="dates-next-btn" class="btn btn-primary">Next</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Travel Companions -->
+        <div id="companions-container" class="step-container">
+            <div class="card">
+                <h2 class="mb-4">Who's coming with you?</h2>
+                <div class="row g-3">
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card option-card text-center p-3" data-companion="solo">
+                            <div class="mb-2">
+                                <i class="fas fa-user fa-3x"></i>
+                            </div>
+                            <h5>Going Solo</h5>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card option-card text-center p-3" data-companion="partner">
+                            <div class="mb-2">
+                                <i class="fas fa-user-friends fa-3x"></i>
+                            </div>
+                            <h5>Partner</h5>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card option-card text-center p-3" data-companion="friends">
+                            <div class="mb-2">
+                                <i class="fas fa-users fa-3x"></i>
+                            </div>
+                            <h5>Friends</h5>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card option-card text-center p-3" data-companion="family">
+                            <div class="mb-2">
+                                <i class="fas fa-home fa-3x"></i>
+                            </div>
+                            <h5>Family</h5>
+                        </div>
+                    </div>
+                </div>
+                <button id="companions-next-btn" class="btn btn-primary mt-4">Next</button>
+            </div>
+        </div>
+
+       <!-- Step 4: Activities -->
+<div id="activities-container" class="step-container">
+    <div class="card">
+        <h2 class="mb-4">How do you want to spend your time?</h2>
+        <p class="text-muted mb-3">Select all that apply</p>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="activity-option" data-activity="beaches">
+                    <i class="fas fa-umbrella-beach me-2"></i>
+                    Beaches & Relaxation
+                </div>
+                <div class="activity-option" data-activity="hiking">
+                    <i class="fas fa-hiking me-2"></i>
+                    Hiking & Nature
+                </div>
+                <div class="activity-option" data-activity="culture">
+                    <i class="fas fa-landmark me-2"></i>
+                    Culture & History
+                </div>
+                <div class="activity-option" data-activity="food">
+                    <i class="fas fa-utensils me-2"></i>
+                    Food & Dining
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="activity-option" data-activity="adventure">
+                    <i class="fas fa-mountain me-2"></i>
+                    Adventure & Sports
+                </div>
+                <div class="activity-option" data-activity="nightlife">
+                    <i class="fas fa-music me-2"></i>
+                    Nightlife & Entertainment
+                </div>
+                <div class="activity-option" data-activity="shopping">
+                    <i class="fas fa-shopping-bag me-2"></i>
+                    Shopping & Markets
+                </div>
+                <div class="activity-option" data-activity="wellness">
+                    <i class="fas fa-spa me-2"></i>
+                    Wellness & Spa
+                </div>
+            </div>
+        </div>
+
+        <!-- Travel Details Section -->
+        <div class="mt-4 pt-3 border-top">
+            <h4 class="mb-3">Travel Details (Optional)</h4>
+            <p class="text-muted small mb-3">Adding travel details helps us estimate costs more accurately</p>
+            
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="origin-location" class="form-label">Where are you traveling from?</label>
+                    <input type="text" id="origin-location" class="form-control" placeholder="City, Country">
+                </div>
+                <div class="col-md-6">
+                    <label for="transportation-mode" class="form-label">How will you travel there?</label>
+                    <select id="transportation-mode" class="form-select">
+                        <option value="">Select transportation mode</option>
+                        <option value="air">Air (Flight)</option>
+                        <option value="road">Road (Car/Bus)</option>
+                        <option value="rail">Rail (Train)</option>
+                        <option value="sea">Sea (Cruise/Ferry)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+                
+        <button id="activities-next-btn" class="btn btn-primary mt-4">Create Trip</button>
+    </div>
+</div>
+
+<!-- Trip Result -->
+<div id="trip-result-container" class="step-container">
+    <div class="card">
+        <h2 class="mb-4">Your Personalized Trip</h2>
+        <div id="trip-result" class="p-4">
+            <!-- Trip result will be displayed here -->
+        </div>
+        <div class="text-center mt-4">
+            <button id="save-trip-btn" class="btn btn-primary me-2">Save Trip</button>
+            <button id="edit-trip-btn" class="btn btn-warning me-2">Edit Trip</button>
+            <button id="plan-again-btn" class="btn btn-outline-primary">Plan Another Trip</button>
+        </div>
+    </div>
+</div>
+
+<div class="codeaj" id="codeaj"></div>
+
+<script>
+    // Sample destinations data
+    const destinations = [
+        { id: 'paris', name: 'Paris, France', image: 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1b/4b/59/86/caption.jpg?w=1400&h=1400&s=1', description: 'The City of Light' },
+        { id: 'tokyo', name: 'Tokyo, Japan', image: 'https://images.squarespace-cdn.com/content/v1/607d95468ee6257ceab9d30a/1722287736963-UXQW0JR5P1LTBEADCW8S/Tokyo+Tower.jpg', description: 'Modern meets traditional' },
+        { id: 'bali', name: 'Bali, Indonesia', image: 'https://baliuntold.com/wp-content/uploads/2023/11/Em-K-Ubud-Palace.jpg', description: 'Island paradise' },
+        { id: 'newyork', name: 'New York City, USA', image: 'https://pfnyc.org/wp-content/uploads/2023/11/nick-fewings-2yfWE3yWipQ-unsplash.jpg', description: 'The Big Apple' },
+        { id: 'rome', name: 'Rome, Italy', image: 'https://i.natgeofe.com/n/3012ffcc-7361-45f6-98b3-a36d4153f660/colosseum-daylight-rome-italy_2x3.jpg', description: 'Eternal City' },
+        { id: 'sydney', name: 'Sydney, Australia', image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Sydney-collage-wikipedia_2.jpg/640px-Sydney-collage-wikipedia_2.jpg', description: 'Harbor city' },
+        { id: 'delhi', name: 'New Delhi, India', image: 'https://upload.wikimedia.org/wikipedia/commons/9/93/India_Gate_in_New_Delhi_03-2016_img3.jpg', description: 'Capital city with rich heritage' },
+        { id: 'mumbai', name: 'Mumbai, India', image: 'https://upload.wikimedia.org/wikipedia/commons/8/8d/Mumbai_Skyline_at_Night.jpg', description: 'City of Dreams and Bollywood' },
+        { id: 'jaipur', name: 'Jaipur, India', image: 'https://upload.wikimedia.org/wikipedia/commons/3/33/Hawa_Mahal_2011.jpg', description: 'The Pink City' },
+        { id: 'goa', name: 'Goa, India', image: 'https://upload.wikimedia.org/wikipedia/commons/3/3e/Baga_Beach_Goa.jpg', description: 'Beach and party capital' },
+        { id: 'kerala', name: 'Alleppey, Kerala, India', image: 'https://upload.wikimedia.org/wikipedia/commons/0/0a/Kerala_Backwaters_Alleppey.jpg', description: 'God’s Own Country' },
+        { id: 'leh', name: 'Leh-Ladakh, India', image: 'https://upload.wikimedia.org/wikipedia/commons/4/42/Pangong_lake%2C_Ladakh.jpg', description: 'Land of High Passes' },
+        { id: 'agra', name: 'Agra, India', image: 'https://upload.wikimedia.org/wikipedia/commons/d/da/Taj-Mahal.jpg', description: 'Home of the Taj Mahal' },
+        { id: 'rishikesh', name: 'Rishikesh, India', image: 'https://upload.wikimedia.org/wikipedia/commons/d/d1/Ram_Jhula%2C_Rishikesh.jpg', description: 'Yoga capital on the Ganges' },
+        { id: 'shimla', name: 'Shimla, Himachal Pradesh, India', image: 'https://upload.wikimedia.org/wikipedia/commons/9/91/The_Ridge%2C_Shimla.jpg', description: 'Colonial hill station' },
+        { id: 'mysore', name: 'Mysore, Karnataka, India', image: 'https://upload.wikimedia.org/wikipedia/commons/b/bd/Mysore_Palace_Morning.jpg', description: 'Palace city of South India' },
+        { id: 'varanasi', name: 'Varanasi, Uttar Pradesh, India', image: 'https://upload.wikimedia.org/wikipedia/commons/0/0c/Varanasi_Ghat.jpg', description: 'Spiritual heart of India' },
+        { id: 'udaipur', name: 'Udaipur, Rajasthan, India', image: 'https://upload.wikimedia.org/wikipedia/commons/0/03/Udaipur_City_Palace_panorama.jpg', description: 'City of Lakes' }
+
+    ];
+
+    // Trip planning data storage
+    const tripData = {
+        destination: null,
+        startDate: null,
+        endDate: null,
+        companions: null,
+        activities: [],
+        tripHtml: null  // Add this property to store the generated HTML
+    };
+
+    // DOM elements
+    const planTripBtn = document.getElementById('plan-trip-btn');
+    const destinationInput = document.getElementById('destination-input');
+    const destinationSearchBtn = document.getElementById('destination-search-btn');
+    const destinationResults = document.getElementById('destination-results');
+    const startDateInput = document.getElementById('start-date');
+    const endDateInput = document.getElementById('end-date');
+    const datesNextBtn = document.getElementById('dates-next-btn');
+    const companionsNextBtn = document.getElementById('companions-next-btn');
+    const activitiesNextBtn = document.getElementById('activities-next-btn');
+    const planAgainBtn = document.getElementById('plan-again-btn');
+    const originLocationInput = document.getElementById('origin-location');
+    const transportationModeSelect = document.getElementById('transportation-mode');
+
+    function showStep(stepId) {
+        // Hide all steps
+        document.querySelectorAll('.step-container').forEach(container => {
+            container.style.display = 'none';
+        });
+        
+        // Show the requested step
+        const step = document.getElementById(stepId);
+        if (step) {
+            step.style.display = 'block';
+        }
+        
+        // Scroll to top
+        window.scrollTo(0, 0);
+    }
+
+    // Initialize event listeners
+    function initEventListeners() {
+        // Plan Trip button
+        planTripBtn.addEventListener('click', () => {
+            showStep('destination-container');
+        });
+
+        // Destination search
+        destinationSearchBtn.addEventListener('click', searchDestinations);
+        destinationInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                searchDestinations();
+            }
+        });
+
+        // Dates next button
+        datesNextBtn.addEventListener('click', () => {
+            const startDate = startDateInput.value;
+            const endDate = endDateInput.value;
+            
+            if (!startDate || !endDate) {
+                alert('Please select both start and end dates');
+                return;
+            }
+            
+            if (new Date(startDate) > new Date(endDate)) {
+                alert('End date must be after start date');
+                return;
+            }
+            
+            tripData.startDate = startDate;
+            tripData.endDate = endDate;
+            showStep('companions-container');
+        });
+
+        // Companion selection
+        document.querySelectorAll('.option-card').forEach(card => {
+            card.addEventListener('click', () => {
+                // Remove selected class from all cards
+                document.querySelectorAll('.option-card').forEach(c => {
+                    c.classList.remove('selected');
+                });
+                
+                // Add selected class to clicked card
+                card.classList.add('selected');
+                
+                // Save selected companion
+                tripData.companions = card.getAttribute('data-companion');
+                
+                // Enable next button
+                companionsNextBtn.disabled = false;
+            });
+        });
+
+        // Companions next button
+        companionsNextBtn.addEventListener('click', () => {
+            if (!tripData.companions) {
+                alert('Please select who you are traveling with');
+                return;
+            }
+            
+            showStep('activities-container');
+        });
+
+        // Activity selection
+        document.querySelectorAll('.activity-option').forEach(option => {
+            option.addEventListener('click', () => {
+                option.classList.toggle('selected');
+                
+                const activity = option.getAttribute('data-activity');
+                
+                if (option.classList.contains('selected')) {
+                    if (!tripData.activities.includes(activity)) {
+                        tripData.activities.push(activity);
+                    }
+                } else {
+                    const index = tripData.activities.indexOf(activity);
+                    if (index > -1) {
+                        tripData.activities.splice(index, 1);
+                    }
+                }
+            });
+        });
+
+        // Activities next button
+        activitiesNextBtn.addEventListener('click', () => {
+            if (tripData.activities.length === 0) {
+                alert('Please select at least one activity');
+                return;
+            }
+            
+            generateTrip();
+            showStep('trip-result-container');
+        });
+
+        // Plan again button
+        planAgainBtn.addEventListener('click', () => {
+            // Reset form
+            resetTripData();
+            showStep('welcome-container');
+        });
+    }
+
+    // Search destinations
+    function searchDestinations() {
+        const searchTerm = destinationInput.value.toLowerCase().trim();
+        
+        if (!searchTerm) {
+            alert('Please enter a destination');
+            return;
+        }
+        
+        const filteredDestinations = destinations.filter(dest => 
+            dest.name.toLowerCase().includes(searchTerm)
+        );
+        
+        renderDestinationResults(filteredDestinations);
+    }
+
+    // Render destination search results
+    function renderDestinationResults(results) {
+        destinationResults.innerHTML = '';
+        
+        if (results.length === 0) {
+            destinationResults.innerHTML = `
+                <div class="col-12 text-center py-4">
+                    <p>No destinations found. Try another search term.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        results.forEach(dest => {
+            const destElement = document.createElement('div');
+            destElement.className = 'col-md-6 mb-3';
+            destElement.innerHTML = `
+                <div class="card h-100 option-card" data-destination="${dest.id}">
+                    <div class="row g-0">
+                        <div class="col-4">
+                            <img src="${dest.image}" class="img-fluid rounded-start" alt="${dest.name}">
+                        </div>
+                        <div class="col-8">
+                            <div class="card-body">
+                                <h5 class="card-title">${dest.name}</h5>
+                                <p class="card-text small">${dest.description}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            destElement.querySelector('.card').addEventListener('click', () => {
+                tripData.destination = dest;
+                showStep('dates-container');
+            });
+            
+            destinationResults.appendChild(destElement);
+        });
+    }
+
+    // Generate trip
+    function generateTrip() {
+        // Show loading spinner
+        const resultContainer = document.getElementById('trip-result-container');
+        resultContainer.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h3>Crafting your perfect trip...</h3>
+                <p class="text-muted">This may take a moment</p>
+                <div id="loading-status" class="mt-3 text-muted">Connecting to AI service...</div>
+            </div>
+        `;
+        
+        showStep('trip-result-container');
+        
+        // Update loading status
+        const loadingStatus = document.getElementById('loading-status');
+        let loadingTime = 0;
+        const loadingInterval = setInterval(() => {
+            loadingTime += 5;
+            if (loadingTime === 5) {
+                loadingStatus.textContent = "Analyzing destination details...";
+            } else if (loadingTime === 15) {
+                loadingStatus.textContent = "Creating personalized itinerary...";
+            } else if (loadingTime === 30) {
+                loadingStatus.textContent = "Almost there! Finalizing your trip plan...";
+            }
+        }, 5000);
+        
+        // Set timeout for API call
+        const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Request timed out')), 45000);
+        });
+        
+        // Prepare data
+        const payload = {
+            destination: tripData.destination.name,
+            place_id: tripData.destination.id,
+            start_date: tripData.startDate,
+            end_date: tripData.endDate,
+            companions: tripData.companions,
+            activities: tripData.activities,
+            origin_location: originLocationInput.value || '', // Add origin location
+            transportation_mode: transportationModeSelect.value || '' // Add transportation mode
+        };
+        
+        // Make API call to generate trip with timeout
+        Promise.race([
+            fetch('/generate-ai-trip/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(payload)
+            }),
+            timeoutPromise
+        ])
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            clearInterval(loadingInterval);
+            
+            if (data.success) {
+                // Store trip HTML for saving
+                tripData.tripHtml = data.content;
+                
+                // Create result container first if it doesn't exist
+                let tripResultContainer = document.getElementById('trip-result-container');
+                if (!tripResultContainer) {
+                    tripResultContainer = document.createElement('div');
+                    tripResultContainer.id = 'trip-result-container';
+                    tripResultContainer.className = 'step-container';
+                    document.querySelector('.container').appendChild(tripResultContainer);
+                }
+                
+                // Create or update trip result element
+                let tripResult = document.getElementById('trip-result');
+                if (!tripResult) {
+                    tripResultContainer.innerHTML = `
+                    <div class="card">
+                        <h2 class="mb-4">Your Personalized Trip</h2>
+                        <div id="trip-result" class="p-4">
+                            ${data.content}
+                        </div>
+                        <div class="text-center mt-4">
+                            <button id="save-trip-btn" class="btn btn-primary me-2">Save Trip</button>
+                            <button id="edit-trip-btn" class="btn btn-warning me-2">Edit Trip</button>
+                            <button id="plan-again-btn" class="btn btn-outline-primary">Plan Another Trip</button>
+                        </div>
+                    </div>`;
+                    
+                    // Add event listeners for the new buttons
+                    document.getElementById('save-trip-btn').addEventListener('click', () => {
+                        saveTripToLocalStorage();
+                        alert('Trip saved successfully!');
+                        showStep('saved-trips-container');
+                        displaySavedTrips();
+                    });
+                    
+                    document.getElementById('edit-trip-btn').addEventListener('click', () => {
+                        toggleTripEdit();
+                    });
+                    
+                    document.getElementById('plan-again-btn').addEventListener('click', () => {
+                        showStep('saved-trips-container');
+                        displaySavedTrips();
+                    });
+                } else {
+                    tripResult.innerHTML = data.content;
+                }
+                
+                // Save trip to local storage
+                saveTripToLocalStorage();
+            } else {
+                let errorElement = document.getElementById('trip-result');
+                if (!errorElement) {
+                    document.getElementById('trip-result-container').innerHTML = `
+                    <div class="card">
+                        <h2 class="mb-4">Your Personalized Trip</h2>
+                        <div id="trip-result" class="p-4">
+                            <div class="alert alert-danger">
+                                <h4>Error generating trip</h4>
+                                <p>${data.error || 'An unknown error occurred'}</p>
+                                <button id="try-again-btn" class="btn btn-primary mt-3">Try Again</button>
+                            </div>
+                        </div>
+                        <div class="text-center mt-4">
+                            <button id="plan-again-btn" class="btn btn-outline-primary">Plan Another Trip</button>
+                        </div>
+                    </div>`;
+                } else {
+                    errorElement.innerHTML = `
+                    <div class="alert alert-danger">
+                        <h4>Error generating trip</h4>
+                        <p>${data.error || 'An unknown error occurred'}</p>
+                        <button id="try-again-btn" class="btn btn-primary mt-3">Try Again</button>
+                    </div>`;
+                }
+                
+                document.getElementById('try-again-btn').addEventListener('click', () => {
+                    showStep('destination-container');
+                });
+            }
+        })
+        .catch(error => {
+            clearInterval(loadingInterval);
+            console.error('Error:', error);
+            
+            let errorMessage = 'Could not connect to the server. Please try again later.';
+            if (error.message === 'Request timed out') {
+                errorMessage = 'The request took too long to complete. The AI service might be busy right now. Please try again in a few minutes.';
+            } else if (error.message.includes('Server responded with')) {
+                errorMessage = error.message;
+            }
+            
+            // Create result container first if it doesn't exist
+            let tripResultContainer = document.getElementById('trip-result-container');
+            if (!tripResultContainer) {
+                tripResultContainer = document.createElement('div');
+                tripResultContainer.id = 'trip-result-container';
+                tripResultContainer.className = 'step-container';
+                document.querySelector('.container').appendChild(tripResultContainer);
+            }
+            
+            tripResultContainer.innerHTML = `
+            <div class="card">
+                <h2 class="mb-4">Your Personalized Trip</h2>
+                <div id="trip-result" class="p-4">
+                    <div class="alert alert-danger">
+                        <h4>Error generating trip</h4>
+                        <p>${errorMessage}</p>
+                        <button id="try-again-btn" class="btn btn-primary mt-3">Try Again</button>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <button id="plan-again-btn" class="btn btn-outline-primary">Plan Another Trip</button>
+                </div>
+            </div>`;
+            
+            const tryAgainBtn = document.getElementById('try-again-btn');
+            if (tryAgainBtn) {
+                tryAgainBtn.addEventListener('click', () => {
+                    showStep('destination-container');
+                });
+            }
+            
+            const planAgainBtn = document.getElementById('plan-again-btn');
+            if (planAgainBtn) {
+                planAgainBtn.addEventListener('click', () => {
+                    showStep('saved-trips-container');
+                    displaySavedTrips();
+                });
+            }
+        });
+    }
+    
+    // Reset trip data
+    function resetTripData() {
+        tripData.destination = null;
+        tripData.startDate = null;
+        tripData.endDate = null;
+        tripData.companions = null;
+        tripData.activities = [];
+        tripData.tripHtml = null;
+        
+        // Reset form elements
+        destinationInput.value = '';
+        startDateInput.value = '';
+        endDateInput.value = '';
+        
+        document.querySelectorAll('.option-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        
+        document.querySelectorAll('.activity-option').forEach(option => {
+            option.classList.remove('selected');
+        });
+        
+        destinationResults.innerHTML = '';
+    }
+
+    // Get Cookie (for CSRF token)
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Toggle trip editing
+    function toggleTripEdit() {
+        const tripResult = document.getElementById('trip-result');
+        const editBtn = document.getElementById('edit-trip-btn');
+        
+        if (tripResult.contentEditable === 'true') {
+            // Save the edited content
+            tripResult.contentEditable = 'false';
+            tripResult.style.border = 'none';
+            editBtn.textContent = 'Edit Trip';
+            editBtn.classList.remove('btn-success');
+            editBtn.classList.add('btn-warning');
+            
+            // Update trip data with edited content
+            tripData.tripHtml = tripResult.innerHTML;
+            
+            // If this is an existing saved trip, update it directly
+            if (tripData.id) {
+                let savedTrips = JSON.parse(localStorage.getItem('savedTrips') || '[]');
+                const tripIndex = savedTrips.findIndex(trip => trip.id === tripData.id);
+                
+                if (tripIndex !== -1) {
+                    // Update existing trip
+                    savedTrips[tripIndex].tripHtml = tripData.tripHtml;
+                    localStorage.setItem('savedTrips', JSON.stringify(savedTrips));
+                } else {
+                    // Save as new if not found
+                    saveTripToLocalStorage();
+                }
+            } else {
+                // Save as new trip
+                saveTripToLocalStorage();
+            }
+            
+            alert('Trip edited and saved successfully!');
+        } else {
+            // Enable editing
+            tripResult.contentEditable = 'true';
+            tripResult.style.border = '2px dashed #6a11cb';
+            tripResult.style.padding = '15px';
+            editBtn.textContent = 'Save Edits';
+            editBtn.classList.remove('btn-warning');
+            editBtn.classList.add('btn-success');
+        }
+    }
+
+    // Save trip to local storage
+    function saveTripToLocalStorage() {
+        if (!tripData.tripHtml) return;
+        
+        const savedTrip = {
+            id: tripData.id || Date.now(),
+            destination: tripData.destination.name,
+            startDate: tripData.startDate,
+            endDate: tripData.endDate,
+            companions: tripData.companions,
+            activities: tripData.activities,
+            originLocation: originLocationInput.value || '',
+            transportationMode: transportationModeSelect.value || '',
+            tripHtml: tripData.tripHtml,
+            savedDate: new Date().toISOString()
+        };
+        
+        let savedTrips = JSON.parse(localStorage.getItem('savedTrips') || '[]');
+        
+        // Check if this is an update to an existing trip
+        if (tripData.id) {
+            const tripIndex = savedTrips.findIndex(trip => trip.id === tripData.id);
+            if (tripIndex !== -1) {
+                // Update existing trip
+                savedTrips[tripIndex] = savedTrip;
+            } else {
+                // Add as new if ID doesn't exist
+                savedTrips.push(savedTrip);
+            }
+        } else {
+            // This is a new trip, set the ID in tripData for future reference
+            tripData.id = savedTrip.id;
+            savedTrips.push(savedTrip);
+        }
+        
+        localStorage.setItem('savedTrips', JSON.stringify(savedTrips));
+    }
+    
+    // Display saved trips
+    function displaySavedTrips() {
+        const savedTripsContainer = document.getElementById('saved-trips-list');
+        const savedTrips = JSON.parse(localStorage.getItem('savedTrips') || '[]');
+        
+        if (savedTrips.length === 0) {
+            savedTripsContainer.innerHTML = `
+                <div class="alert alert-info">
+                    <p>You don't have any saved trips yet. Create your first trip!</p>
+                    <button id="create-first-trip-btn" class="btn btn-primary mt-2">Create Trip</button>
+                </div>
+            `;
+            
+            document.getElementById('create-first-trip-btn').addEventListener('click', () => {
+                showStep('welcome-container');
+            });
+            return;
+        }
+        
+        savedTripsContainer.innerHTML = '';
+        savedTrips.forEach(trip => {
+            const tripDate = new Date(trip.savedDate);
+            const formattedDate = tripDate.toLocaleDateString();
+            
+            const tripCard = document.createElement('div');
+            tripCard.className = 'card mb-3';
+            tripCard.innerHTML = `
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <h5 class="card-title">${trip.destination}</h5>
+                        <div>
+                            <button class="btn btn-sm btn-outline-danger delete-trip-btn" data-id="${trip.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            ${trip.startDate} to ${trip.endDate} | Saved on ${formattedDate}
+                        </small>
+                    </p>
+                    <div class="d-flex">
+                        <button class="btn btn-primary view-trip-btn me-2" data-id="${trip.id}">View Trip</button>
+                    </div>
+                </div>
+            `;
+            
+            savedTripsContainer.appendChild(tripCard);
+            
+            // Add event listener for view button
+            tripCard.querySelector('.view-trip-btn').addEventListener('click', () => {
+                // Set the current trip ID before loading content
+                tripData.id = trip.id;
+                document.getElementById('trip-result').innerHTML = trip.tripHtml;
+                showStep('trip-result-container');
+            });
+            
+            // Add event listener for delete button
+            tripCard.querySelector('.delete-trip-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                deleteTrip(trip.id);
+            });
+        });
+    }
+    
+    // Delete trip from local storage
+    function deleteTrip(tripId) {
+        if (confirm('Are you sure you want to delete this trip?')) {
+            let savedTrips = JSON.parse(localStorage.getItem('savedTrips') || '[]');
+            savedTrips = savedTrips.filter(trip => trip.id !== tripId);
+            localStorage.setItem('savedTrips', JSON.stringify(savedTrips));
+            
+            // Refresh the list
+            displaySavedTrips();
+        }
+    }
+
+    // Initialize the application
+    function init() {
+        initEventListeners();
+        
+        // Set min date to today for date inputs
+        const today = new Date().toISOString().split('T')[0];
+        startDateInput.min = today;
+        endDateInput.min = today;
+        
+        // Add "My Trips" button to welcome screen using proper DOM methods
+        const welcomeButtonGroup = document.querySelector('#welcome-container .card');
+        const viewSavedTripsBtn = document.createElement('button');
+        viewSavedTripsBtn.id = 'view-saved-trips-btn';
+        viewSavedTripsBtn.className = 'btn btn-outline-primary btn-lg mt-2';
+        viewSavedTripsBtn.textContent = 'View My Trips';
+        welcomeButtonGroup.appendChild(viewSavedTripsBtn);
+
+        // Add event listener to the new button
+        viewSavedTripsBtn.addEventListener('click', () => {
+            showStep('saved-trips-container');
+            displaySavedTrips();
+        });
+
+        // Configure saved trips container
+        const savedTripsContainer = document.querySelector('.codeaj');
+        savedTripsContainer.id = 'saved-trips-container';
+        savedTripsContainer.className = 'step-container';
+        savedTripsContainer.innerHTML = `
+            <div class="card">
+                <h2 class="mb-4">My Trips</h2>
+                <div id="saved-trips-list"></div>
+            </div>
+        `;
+        
+        // Update plan-again-btn to show saved trips
+        document.getElementById('plan-again-btn').addEventListener('click', (e) => {
+            showStep('saved-trips-container');
+            displaySavedTrips();
+        });
+        
+        // Add event listeners for Save Trip button
+        document.getElementById('save-trip-btn').addEventListener('click', () => {
+            saveTripToLocalStorage();
+            alert('Trip saved successfully!');
+            showStep('saved-trips-container');
+            displaySavedTrips();
+        });
+        
+        // Add event listener for Edit Trip button
+        document.getElementById('edit-trip-btn').addEventListener('click', () => {
+            toggleTripEdit();
+        });
+    }
+
+    // Start the app when DOM is loaded
+    document.addEventListener('DOMContentLoaded', init);
+</script>
+</div>
+
+<!-- Closing HTML tags -->
+</body>
+
+<script>
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/serviceworker.js')
+            .then(function(registration) {
+                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            })
+            .catch(function(error) {
+                console.log('ServiceWorker registration failed: ', error);
+                // Continue without service worker
+            });
+        });
+    }
+</script>
+
+</html>
+
+
+
+
